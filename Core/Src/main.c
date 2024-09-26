@@ -172,6 +172,21 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
+
+  /** @brief Initialisation du timer pour PWM + complémentaires
+   * tous les channels sont aussi initialisés
+   * config actuel : Rapport cyclique de 50%
+   * fréquence de 20 kHz (voir ioc) */
+
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+
+  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+
+
+
+
   HAL_UART_Receive_IT(&huart2, uartRxBuffer, UART_RX_BUFFER_SIZE);
   HAL_Delay(10);
   HAL_UART_Transmit(&huart2, started, strlen((char*)started), HAL_MAX_DELAY);
@@ -295,13 +310,14 @@ int main(void)
       idxCmd = 0;
       memset(cmd, '\0', CMD_BUFFER_SIZE);
     }
+  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
   /* USER CODE END 3 */
- }
 }
+
 /**
   * @brief System Clock Configuration
   * @retval None
