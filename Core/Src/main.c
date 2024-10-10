@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -69,6 +70,10 @@ const uint8_t started[] =
 
 /** @brief chaîne pour le retour à la ligne */
 const uint8_t newLine[] = "\r\n";
+
+
+/**@brief Message pour la vitesse */
+const uint8_t speedMsg[] = "Speed has been changed\r\n";
 
 /** @brief Message d'aide listant les fonctions disponibles */
 const uint8_t helpMsg[] =
@@ -114,6 +119,7 @@ int idxCmd;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+void changeSpeed(uint16_t speed);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -183,6 +189,9 @@ int main(void)
 
   HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+
+  uint32_t phaseShiftTicks = (htim1.Init.Period + 1) / 2;  // Par exemple, 90° de déphasage
+  set_pwm_phase_shift(phaseShiftTicks);  // Appliquer le déphasage via CCR
 
 
 
@@ -298,6 +307,14 @@ int main(void)
         {
           HAL_UART_Transmit(&huart2, powerOff, strlen((char*)powerOff), HAL_MAX_DELAY);
         }
+        else if (strcmp(argv[0], "speed") == 0) {
+            if (argc > 1) {
+            	changeSpeed(atoi(argv[1]));
+                HAL_UART_Transmit(&huart2, speedMsg, strlen((char*)speedMsg), HAL_MAX_DELAY);
+            } else {
+                HAL_UART_Transmit(&huart2, (uint8_t*)"Speed value missing\r\n", 21, HAL_MAX_DELAY);
+            }
+        }
         else
         {
           HAL_UART_Transmit(&huart2, cmdNotFound, strlen((char*)cmdNotFound), HAL_MAX_DELAY);
@@ -314,6 +331,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
 
   /* USER CODE END 3 */
 }
@@ -376,6 +394,31 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     uartRxReceived = 1;
     // La relance de la réception UART est effectuée dans la boucle principale
   }
+}
+/** @brief Fonction qui change la vitesse du moteur en modifiant le rapport cyclique des PWM
+	* @params speed : vitesse d'entrée
+ */
+void changeSpeed(uint16_t speed) {
+    // Limite la vitesse à la plage valide
+    if (speed > htim1.Init.Period) {
+        speed = htim1.Init.Period;
+    }
+
+    // Met à jour le rappport cyclique
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, speed);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, speed);
+
+
+
+}
+
+void set_pwm_phase_shift(uint32_t phaseShiftTicks)
+{
+   // Configure le bras U (CH1) avec un duty cycle de 50%
+   __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, htim1.Init.Period / 2);  // Duty cycle 50% pour le bras U
+
+   // Configure le bras V (CH2) avec le déphasage
+   __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, phaseShiftTicks);  // Déphasage pour le bras V
 }
 /* USER CODE END 4 */
 
