@@ -120,6 +120,7 @@ int idxCmd;
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void changeSpeed(uint16_t speed);
+void set_pwm_phase_shift(uint32_t phaseShiftTicks);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -176,12 +177,13 @@ int main(void)
   MX_TIM3_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
 
   /** @brief Initialisation du timer pour PWM + complémentaires
    * tous les channels sont aussi initialisés
-   * config actuel : Rapport cyclique de 50%
+   * config actuel : Rapport cyclique de 10 et 90%
    * fréquence de 20 kHz (voir ioc) */
 
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
@@ -190,8 +192,12 @@ int main(void)
   HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
 
-  uint32_t phaseShiftTicks = (htim1.Init.Period + 1) / 2;  // Par exemple, 90° de déphasage
-  set_pwm_phase_shift(phaseShiftTicks);  // Appliquer le déphasage via CCR
+
+//ARR vaut 1024, ici on a 10% de rapport cyclique et 90%
+__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 103);
+__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 922);
+
+
 
 
 
