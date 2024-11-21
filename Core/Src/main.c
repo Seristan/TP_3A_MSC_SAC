@@ -42,6 +42,11 @@
 #define CMD_BUFFER_SIZE     64 /**< Taille du buffer de commande */
 #define MAX_ARGS            9  /**< Nombre maximum d'arguments */
 
+// Constantes pour la fonction de changement de vitesse
+
+#define SPEED_STEPS 100  // Nombre d'étapes pour un changement en douceur
+#define SPEED_DELAY 15   // Délai entre chaque étape (en ms)
+
 /** Codes ASCII */
 
 #define ASCII_LF  0x0A /**< Line Feed (saut de ligne) */
@@ -120,7 +125,8 @@ int idxCmd;
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void changeSpeed(uint16_t speed);
-void set_pwm_phase_shift(uint32_t phaseShiftTicks);
+void start();
+void stop();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -186,19 +192,20 @@ int main(void)
    * config actuel : Rapport cyclique de 10 et 90%
    * fréquence de 20 kHz (voir ioc) */
 
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+//  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+//  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 
-  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
-  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+//  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+//  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
 
 
 //ARR vaut 1024, ici on a 10% de rapport cyclique et 90%
-__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 103);
-__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 922);
 
 
 
+//__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 922);
+//__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 103);
+//
 
 
 
@@ -307,10 +314,12 @@ __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 922);
         }
         else if (strcmp(argv[0], "start") == 0)
         {
+        	start();
           HAL_UART_Transmit(&huart2, powerOn, strlen((char*)powerOn), HAL_MAX_DELAY);
         }
         else if (strcmp(argv[0], "stop") == 0)
         {
+          stop();
           HAL_UART_Transmit(&huart2, powerOff, strlen((char*)powerOff), HAL_MAX_DELAY);
         }
         else if (strcmp(argv[0], "speed") == 0) {
@@ -401,31 +410,85 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     // La relance de la réception UART est effectuée dans la boucle principale
   }
 }
+
+/** @brief Fonction qui genère les PWM avec un rapport cyclique initial de 50%
+ */
+void start(){
+
+
+	  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+
+	  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+	  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 512);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 512);
+
+
+
+}
+
+/** @brief Fonction qui stoppe la génération des PWM
+ */
+void stop(){
+
+	  HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+	  HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+	  HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1);
+	  HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2);
+
+}
+
+
+
+
 /** @brief Fonction qui change la vitesse du moteur en modifiant le rapport cyclique des PWM
 	* @params speed : vitesse d'entrée
  */
-void changeSpeed(uint16_t speed) {
-    // Limite la vitesse à la plage valide
-    if (speed > htim1.Init.Period) {
-        speed = htim1.Init.Period;
+
+void changeSpeed(uint16_t targetSpeed) {
+    static uint16_t currentSpeed = 512;  // Vitesse actuelle (persistant puisque static)
+
+    if (targetSpeed > 100) {
+        char errorMsg[50];
+        sprintf(errorMsg, "Valeur de speed incorrecte: %d. Doit être entre 0 et 100.\r\n", targetSpeed);
+        HAL_UART_Transmit(&huart2, (uint8_t*)errorMsg, strlen(errorMsg), HAL_MAX_DELAY);
+        return;
     }
 
-    // Met à jour le rappport cyclique
-    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, speed);
-    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, speed);
+    // Converti la vitesse de 0-100 à 0-1024
+    uint16_t targetValue = (targetSpeed * 1024) / 100;
 
+    // pas de changement
+    int16_t step = (targetValue - currentSpeed) / SPEED_STEPS;
 
+    // Change progressivement la vitesse
+    for (int i = 0; i < SPEED_STEPS; i++) {
+        currentSpeed += step;
+
+        // currentSpeed reste dans les limites
+        if (currentSpeed > 1024) currentSpeed = 1024;
+        if (currentSpeed < 0) currentSpeed = 0;
+
+        uint16_t speed_channel_1 = currentSpeed;
+        uint16_t speed_channel_2 = 1024 - currentSpeed;
+
+        // Mise à jour du rapport cyclique
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, speed_channel_1);
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, speed_channel_2);
+
+        HAL_Delay(SPEED_DELAY);  // Petit délai pour une transition en douceur
+    }
+
+    // Assurer que la vitesse finale est exactement celle demandée
+    currentSpeed = targetValue;
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, currentSpeed);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 1024 - currentSpeed);
 
 }
 
-void set_pwm_phase_shift(uint32_t phaseShiftTicks)
-{
-   // Configure le bras U (CH1) avec un duty cycle de 50%
-   __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, htim1.Init.Period / 2);  // Duty cycle 50% pour le bras U
 
-   // Configure le bras V (CH2) avec le déphasage
-   __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, phaseShiftTicks);  // Déphasage pour le bras V
-}
+
 /* USER CODE END 4 */
 
 /**
