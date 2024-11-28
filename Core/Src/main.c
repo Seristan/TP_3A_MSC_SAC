@@ -53,6 +53,7 @@
 #define ASCII_CR  0x0D /**< Carriage Return (retour chariot) */
 #define ASCII_DEL 0x7F /**< Delete (suppression) */
 
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -62,6 +63,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+static int counter = 0;
 
 /** @brief Prompt affiché */
 const uint8_t prompt[] = "user@Nucleo-STM32G431>>";
@@ -127,10 +130,17 @@ void SystemClock_Config(void);
 void changeSpeed(uint16_t speed);
 void start();
 void stop();
+void ADC_conversion();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+int __io_putchar(int ch)
+{
+	HAL_UART_Transmit(&huart2, (uint8_t*)&ch, 1, HAL_MAX_DELAY);
+
+	return ch;
+}
 /* USER CODE END 0 */
 
 /**
@@ -184,6 +194,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_TIM2_Init();
+  HAL_TIM_Base_Start_IT(&htim1);
   /* USER CODE BEGIN 2 */
 
 
@@ -321,6 +332,10 @@ int main(void)
         {
           stop();
           HAL_UART_Transmit(&huart2, powerOff, strlen((char*)powerOff), HAL_MAX_DELAY);
+        }
+        else if(strcmp(argv[0], "adc") == 0){
+        	ADC_conversion();
+
         }
         else if (strcmp(argv[0], "speed") == 0) {
             if (argc > 1) {
@@ -487,6 +502,24 @@ void changeSpeed(uint16_t targetSpeed) {
 
 }
 
+void ADC_conversion() {
+
+    uint16_t value;
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 10);
+    value = HAL_ADC_GetValue(&hadc1);
+
+    float sensibilite = 0.05;
+    float Vref = 1.65;
+
+    float v_adc = (value * 3.3f) / 4096.0f;
+    float I_courant = (Vref - v_adc) / sensibilite;
+
+    printf("Tension adc : %.3f V\r\n", v_adc);
+    printf("I_moteur : %.3f A\r\n", I_courant);
+
+}
+
 
 
 /* USER CODE END 4 */
@@ -501,7 +534,12 @@ void changeSpeed(uint16_t targetSpeed) {
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+
   /* USER CODE BEGIN Callback 0 */
+
+	if (htim->Instance == TIM1) {
+		counter++;
+		}
 
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM6) {
@@ -510,8 +548,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE BEGIN Callback 1 */
 
   /* USER CODE END Callback 1 */
-}
 
+}
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
