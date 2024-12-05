@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -52,6 +53,7 @@
 #define ASCII_LF  0x0A /**< Line Feed (saut de ligne) */
 #define ASCII_CR  0x0D /**< Carriage Return (retour chariot) */
 #define ASCII_DEL 0x7F /**< Delete (suppression) */
+
 
 
 /* USER CODE END PD */
@@ -122,6 +124,13 @@ char cmd[CMD_BUFFER_SIZE];
 /** @brief Index pour le prochain caractère à remplir */
 int idxCmd;
 
+/** @brief Variables globales de courant et de tension adc */
+float tension_adc, courant;
+
+/** @brief Déclaration du buffer DMA */
+
+uint16_t adc_buffer[1];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -131,6 +140,7 @@ void changeSpeed(uint16_t speed);
 void start();
 void stop();
 void ADC_conversion();
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -187,6 +197,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC2_Init();
   MX_ADC1_Init();
   MX_TIM1_Init();
@@ -194,7 +205,6 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_TIM2_Init();
-  HAL_TIM_Base_Start_IT(&htim1);
   /* USER CODE BEGIN 2 */
 
 
@@ -219,6 +229,8 @@ int main(void)
 //
 
 
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, 1);
+  HAL_TIM_Base_Start(&htim1);
 
   HAL_UART_Receive_IT(&huart2, uartRxBuffer, UART_RX_BUFFER_SIZE);
   HAL_Delay(10);
@@ -335,6 +347,8 @@ int main(void)
         }
         else if(strcmp(argv[0], "adc") == 0){
         	ADC_conversion();
+            printf("Tension adc : %.3f V\r\n", tension_adc);
+            printf("I_moteur : %.3f A\r\n", courant);
 
         }
         else if (strcmp(argv[0], "speed") == 0) {
@@ -504,21 +518,20 @@ void changeSpeed(uint16_t targetSpeed) {
 
 void ADC_conversion() {
 
-    uint16_t value;
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, 10);
-    value = HAL_ADC_GetValue(&hadc1);
-
     float sensibilite = 0.05;
     float Vref = 1.65;
 
-    float v_adc = (value * 3.3f) / 4096.0f;
+    float v_adc = (adc_buffer[0] * 3.3f) / 4096.0f;
     float I_courant = (Vref - v_adc) / sensibilite;
 
-    printf("Tension adc : %.3f V\r\n", v_adc);
-    printf("I_moteur : %.3f A\r\n", I_courant);
+    tension_adc = v_adc;
+	courant = I_courant;
+
+    //printf("Tension adc : %.3f V\r\n", v_adc);
+    //printf("I_moteur : %.3f A\r\n", I_courant);
 
 }
+
 
 
 
@@ -534,11 +547,11 @@ void ADC_conversion() {
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-
   /* USER CODE BEGIN Callback 0 */
 
 	if (htim->Instance == TIM1) {
 		counter++;
+		HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, 1);
 		}
 
   /* USER CODE END Callback 0 */
@@ -547,9 +560,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
 
-  /* USER CODE END Callback 1 */
 
+  /* USER CODE END Callback 1 */
 }
+
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
