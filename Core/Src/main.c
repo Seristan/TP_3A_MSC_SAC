@@ -208,26 +208,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
-  /** @brief Initialisation du timer pour PWM + complémentaires
-   * tous les channels sont aussi initialisés
-   * config actuel : Rapport cyclique de 10 et 90%
-   * fréquence de 20 kHz (voir ioc) */
-
-//  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-//  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-
-//  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
-//  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
-
-
-//ARR vaut 1024, ici on a 10% de rapport cyclique et 90%
-
-
-
-//__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 922);
-//__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 103);
-//
-
 
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, 1);
   HAL_TIM_Base_Start(&htim1);
@@ -325,7 +305,7 @@ int main(void)
       if (argc > 0)
       {
     	/**
-    	  * @brief (Sera remplacé par une fonction) Traite les commandes reconnues : help, pinout, start, stop.
+    	  * @brief Traite les commandes reconnues : help, pinout, start, stop.
     	  */
         if (strcmp(argv[0], "help") == 0)
         {
@@ -472,7 +452,7 @@ void stop(){
 
 
 /** @brief Fonction qui change la vitesse du moteur en modifiant le rapport cyclique des PWM
-	* @params speed : vitesse d'entrée
+	* @params targetspeed : vitesse d'entrée
  */
 
 void changeSpeed(uint16_t targetSpeed) {
@@ -516,6 +496,8 @@ void changeSpeed(uint16_t targetSpeed) {
 
 }
 
+/** @brief Fonction qui fait la conversion de l'entrée de l'adc(capteur de courant a effet hall) en courant (de la mcc)
+ */
 void ADC_conversion() {
 
     float sensibilite = 0.05;
