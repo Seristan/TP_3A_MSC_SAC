@@ -1,0 +1,356 @@
+\doxysection{Core/\+Src/main.c File Reference}
+\hypertarget{main_8c}{}\label{main_8c}\index{Core/Src/main.c@{Core/Src/main.c}}
+
+
+\+: Main program body  
+
+
+{\ttfamily \#include "{}main.\+h"{}}\newline
+{\ttfamily \#include "{}adc.\+h"{}}\newline
+{\ttfamily \#include "{}dma.\+h"{}}\newline
+{\ttfamily \#include "{}tim.\+h"{}}\newline
+{\ttfamily \#include "{}usart.\+h"{}}\newline
+{\ttfamily \#include "{}gpio.\+h"{}}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{main_8c_a05f5d709605c6317c97e4974bec3402a}{UART\+\_\+\+TX\+\_\+\+BUFFER\+\_\+\+SIZE}}~64
+\item 
+\#define \mbox{\hyperlink{main_8c_a5bdd6772c246436bb14377095de79b31}{UART\+\_\+\+RX\+\_\+\+BUFFER\+\_\+\+SIZE}}~1
+\item 
+\#define \mbox{\hyperlink{main_8c_a8a0465f8e8bbe71e4d6e8011e975bf75}{CMD\+\_\+\+BUFFER\+\_\+\+SIZE}}~64
+\item 
+\#define \mbox{\hyperlink{main_8c_a29b7451465deac204c5f7cb1f9c6e1fc}{MAX\+\_\+\+ARGS}}~9
+\item 
+\Hypertarget{main_8c_aed931a4c691d64e6dc7c83163c9af4cc}\label{main_8c_aed931a4c691d64e6dc7c83163c9af4cc} 
+\#define {\bfseries SPEED\+\_\+\+STEPS}~100
+\item 
+\Hypertarget{main_8c_a4d20bd46154e6dece06bf581e6006c32}\label{main_8c_a4d20bd46154e6dece06bf581e6006c32} 
+\#define {\bfseries SPEED\+\_\+\+DELAY}~15
+\item 
+\#define \mbox{\hyperlink{main_8c_aca3b498f5936dbe4f3076a47c3e1810d}{ASCII\+\_\+\+LF}}~0x0A
+\item 
+\#define \mbox{\hyperlink{main_8c_a089ed4925403ab02a05e603967c74579}{ASCII\+\_\+\+CR}}~0x0D
+\item 
+\#define \mbox{\hyperlink{main_8c_a3bb28e223b7c203113dc8c0387d43b36}{ASCII\+\_\+\+DEL}}~0x7F
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{main_8c_a70af21c671abfcc773614a9a4f63d920}{System\+Clock\+\_\+\+Config}} (void)
+\begin{DoxyCompactList}\small\item\em System Clock Configuration. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a924e35a23975b70752df7687b215f393}\label{main_8c_a924e35a23975b70752df7687b215f393} 
+void {\bfseries change\+Speed} (uint16\+\_\+t target\+Speed)
+\begin{DoxyCompactList}\small\item\em Fonction qui change la vitesse du moteur en modifiant le rapport cyclique des PWM @params targetspeed \+: vitesse d\textquotesingle{}entrée. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a60de64d75454385b23995437f1d72669}\label{main_8c_a60de64d75454385b23995437f1d72669} 
+void {\bfseries start} ()
+\begin{DoxyCompactList}\small\item\em Fonction qui genère les PWM avec un rapport cyclique initial de 50\%. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a8c528baf37154d347366083f0f816846}\label{main_8c_a8c528baf37154d347366083f0f816846} 
+void {\bfseries stop} ()
+\begin{DoxyCompactList}\small\item\em Fonction qui stoppe la génération des PWM. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a1e03f9d9f82a9750b2e8fe1ce484e396}\label{main_8c_a1e03f9d9f82a9750b2e8fe1ce484e396} 
+void {\bfseries ADC\+\_\+conversion} ()
+\begin{DoxyCompactList}\small\item\em Fonction qui fait la conversion de l\textquotesingle{}entrée de l\textquotesingle{}adc(capteur de courant a effet hall) en courant (de la mcc) \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_af20a88180db1113be1e89266917d148b}\label{main_8c_af20a88180db1113be1e89266917d148b} 
+void {\bfseries HAL\+\_\+\+ADC\+\_\+\+Conv\+Cplt\+Callback} (ADC\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}hadc)
+\item 
+\Hypertarget{main_8c_abc513dd972081ae765b6949a62872eb7}\label{main_8c_abc513dd972081ae765b6949a62872eb7} 
+int {\bfseries \+\_\+\+\_\+io\+\_\+putchar} (int ch)
+\item 
+int \mbox{\hyperlink{main_8c_a840291bc02cba5474a4cb46a9b9566fe}{main}} (void)
+\begin{DoxyCompactList}\small\item\em The application entry point. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_ae494a9643f29b87d6d81e5264e60e57b}{HAL\+\_\+\+UART\+\_\+\+Rx\+Cplt\+Callback}} (UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}huart)
+\begin{DoxyCompactList}\small\item\em Callback appelé à la fin de la réception UART. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a8a3b0ad512a6e6c6157440b68d395eac}{HAL\+\_\+\+TIM\+\_\+\+Period\+Elapsed\+Callback}} (TIM\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}htim)
+\begin{DoxyCompactList}\small\item\em Period elapsed callback in non blocking mode. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a1730ffe1e560465665eb47d9264826f9}{Error\+\_\+\+Handler}} (void)
+\begin{DoxyCompactList}\small\item\em This function is executed in case of error occurrence. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{main_8c_a966d2a4355220cea45d1606e814d7340}\label{main_8c_a966d2a4355220cea45d1606e814d7340} 
+const uint8\+\_\+t {\bfseries prompt} \mbox{[}$\,$\mbox{]} = "{}user@Nucleo-\/STM32\+G431$>$$>$"{}
+\begin{DoxyCompactList}\small\item\em Prompt affiché \end{DoxyCompactList}\item 
+const uint8\+\_\+t \mbox{\hyperlink{main_8c_a755cb53f91881bf4852a1765ffc09dd6}{started}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Message de bienvenue au démarrage du microprocesseur. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a3d58817be6c13d5f73d7ade9aab88984}\label{main_8c_a3d58817be6c13d5f73d7ade9aab88984} 
+const uint8\+\_\+t {\bfseries new\+Line} \mbox{[}$\,$\mbox{]} = "{}\textbackslash{}r\textbackslash{}n"{}
+\begin{DoxyCompactList}\small\item\em chaîne pour le retour à la ligne \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a318b04e876ab4c28508a2156712f13c1}\label{main_8c_a318b04e876ab4c28508a2156712f13c1} 
+const uint8\+\_\+t {\bfseries speed\+Msg} \mbox{[}$\,$\mbox{]} = "{}Speed has been changed\textbackslash{}r\textbackslash{}n"{}
+\begin{DoxyCompactList}\small\item\em Message pour la vitesse. \end{DoxyCompactList}\item 
+const uint8\+\_\+t \mbox{\hyperlink{main_8c_aa743ceb2f8e8a475a9d8792108346fcc}{help\+Msg}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Message d\textquotesingle{}aide listant les fonctions disponibles. \end{DoxyCompactList}\item 
+const uint8\+\_\+t \mbox{\hyperlink{main_8c_ac88f7e9fb5c08068a71fdf0108918291}{pinout}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Liste des broches utilisées. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_aaf2189933bda013fb3c72e886dc5a3d2}\label{main_8c_aaf2189933bda013fb3c72e886dc5a3d2} 
+const uint8\+\_\+t {\bfseries power\+On} \mbox{[}$\,$\mbox{]} = "{}Power ON\textbackslash{}r\textbackslash{}n"{}
+\begin{DoxyCompactList}\small\item\em Message indiquant l\textquotesingle{}allumage du moteur. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_aeb39f657e7d4109c7d352e6ad376228a}\label{main_8c_aeb39f657e7d4109c7d352e6ad376228a} 
+const uint8\+\_\+t {\bfseries power\+Off} \mbox{[}$\,$\mbox{]} = "{}Power OFF\textbackslash{}r\textbackslash{}n"{}
+\begin{DoxyCompactList}\small\item\em Message indiquant l\textquotesingle{}extinction du moteur. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_afffb9f0c7259f40748797ec408c8becb}\label{main_8c_afffb9f0c7259f40748797ec408c8becb} 
+const uint8\+\_\+t {\bfseries cmd\+Not\+Found} \mbox{[}$\,$\mbox{]} = "{}Command not found\textbackslash{}r\textbackslash{}n"{}
+\begin{DoxyCompactList}\small\item\em Message pour commande non reconnue. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a9d8a518124b90c249458a5b30ab36c52}\label{main_8c_a9d8a518124b90c249458a5b30ab36c52} 
+uint32\+\_\+t {\bfseries uart\+Rx\+Received}
+\begin{DoxyCompactList}\small\item\em Flag indiquant la réception d\textquotesingle{}un caractère sur l\textquotesingle{}UART. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a2542ac6d4440b9e1c4a6435c55c79df3}\label{main_8c_a2542ac6d4440b9e1c4a6435c55c79df3} 
+uint8\+\_\+t {\bfseries uart\+Rx\+Buffer} \mbox{[}\mbox{\hyperlink{main_8c_a5bdd6772c246436bb14377095de79b31}{UART\+\_\+\+RX\+\_\+\+BUFFER\+\_\+\+SIZE}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em Buffer de réception UART. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a3f98e2db2fa0d8f0cfd87b887576207f}\label{main_8c_a3f98e2db2fa0d8f0cfd87b887576207f} 
+uint8\+\_\+t {\bfseries uart\+Tx\+Buffer} \mbox{[}\mbox{\hyperlink{main_8c_a05f5d709605c6317c97e4974bec3402a}{UART\+\_\+\+TX\+\_\+\+BUFFER\+\_\+\+SIZE}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em Buffer d\textquotesingle{}émission UART. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a99c89de7e0aef38d558be346ad04cd11}\label{main_8c_a99c89de7e0aef38d558be346ad04cd11} 
+char {\bfseries cmd} \mbox{[}\mbox{\hyperlink{main_8c_a8a0465f8e8bbe71e4d6e8011e975bf75}{CMD\+\_\+\+BUFFER\+\_\+\+SIZE}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em Buffer contenant la commande en cours. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_a7f0a5a2e32844fe97f21c66477350506}\label{main_8c_a7f0a5a2e32844fe97f21c66477350506} 
+int {\bfseries idx\+Cmd}
+\begin{DoxyCompactList}\small\item\em Index pour le prochain caractère à remplir. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_aa13248f39f9583cbc3b3865d223bd8e1}\label{main_8c_aa13248f39f9583cbc3b3865d223bd8e1} 
+float {\bfseries tension\+\_\+adc}
+\begin{DoxyCompactList}\small\item\em Variables globales de courant et de tension adc. \end{DoxyCompactList}\item 
+\Hypertarget{main_8c_ab7a52d18a866962412b38b1bb75d6c80}\label{main_8c_ab7a52d18a866962412b38b1bb75d6c80} 
+float {\bfseries courant}
+\item 
+\Hypertarget{main_8c_a8592d779c061dcc4d7d1d610a517f510}\label{main_8c_a8592d779c061dcc4d7d1d610a517f510} 
+uint16\+\_\+t {\bfseries adc\+\_\+buffer} \mbox{[}1\mbox{]}
+\begin{DoxyCompactList}\small\item\em Déclaration du buffer DMA. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\+: Main program body 
+
+\begin{DoxyAttention}{Attention}
+
+\end{DoxyAttention}
+Copyright (c) 2022 STMicroelectronics. All rights reserved.
+
+This software is licensed under terms that can be found in the LICENSE file in the root directory of this software component. If no LICENSE file comes with this software, it is provided AS-\/\+IS. 
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{main_8c_a089ed4925403ab02a05e603967c74579}\index{main.c@{main.c}!ASCII\_CR@{ASCII\_CR}}
+\index{ASCII\_CR@{ASCII\_CR}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{ASCII\_CR}{ASCII\_CR}}
+{\footnotesize\ttfamily \label{main_8c_a089ed4925403ab02a05e603967c74579} 
+\#define ASCII\+\_\+\+CR~0x0D}
+
+Carriage Return (retour chariot) \Hypertarget{main_8c_a3bb28e223b7c203113dc8c0387d43b36}\index{main.c@{main.c}!ASCII\_DEL@{ASCII\_DEL}}
+\index{ASCII\_DEL@{ASCII\_DEL}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{ASCII\_DEL}{ASCII\_DEL}}
+{\footnotesize\ttfamily \label{main_8c_a3bb28e223b7c203113dc8c0387d43b36} 
+\#define ASCII\+\_\+\+DEL~0x7F}
+
+Delete (suppression) \Hypertarget{main_8c_aca3b498f5936dbe4f3076a47c3e1810d}\index{main.c@{main.c}!ASCII\_LF@{ASCII\_LF}}
+\index{ASCII\_LF@{ASCII\_LF}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{ASCII\_LF}{ASCII\_LF}}
+{\footnotesize\ttfamily \label{main_8c_aca3b498f5936dbe4f3076a47c3e1810d} 
+\#define ASCII\+\_\+\+LF~0x0A}
+
+Codes ASCII Line Feed (saut de ligne) \Hypertarget{main_8c_a8a0465f8e8bbe71e4d6e8011e975bf75}\index{main.c@{main.c}!CMD\_BUFFER\_SIZE@{CMD\_BUFFER\_SIZE}}
+\index{CMD\_BUFFER\_SIZE@{CMD\_BUFFER\_SIZE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{CMD\_BUFFER\_SIZE}{CMD\_BUFFER\_SIZE}}
+{\footnotesize\ttfamily \label{main_8c_a8a0465f8e8bbe71e4d6e8011e975bf75} 
+\#define CMD\+\_\+\+BUFFER\+\_\+\+SIZE~64}
+
+Taille du buffer de commande \Hypertarget{main_8c_a29b7451465deac204c5f7cb1f9c6e1fc}\index{main.c@{main.c}!MAX\_ARGS@{MAX\_ARGS}}
+\index{MAX\_ARGS@{MAX\_ARGS}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_ARGS}{MAX\_ARGS}}
+{\footnotesize\ttfamily \label{main_8c_a29b7451465deac204c5f7cb1f9c6e1fc} 
+\#define MAX\+\_\+\+ARGS~9}
+
+Nombre maximum d\textquotesingle{}arguments \Hypertarget{main_8c_a5bdd6772c246436bb14377095de79b31}\index{main.c@{main.c}!UART\_RX\_BUFFER\_SIZE@{UART\_RX\_BUFFER\_SIZE}}
+\index{UART\_RX\_BUFFER\_SIZE@{UART\_RX\_BUFFER\_SIZE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{UART\_RX\_BUFFER\_SIZE}{UART\_RX\_BUFFER\_SIZE}}
+{\footnotesize\ttfamily \label{main_8c_a5bdd6772c246436bb14377095de79b31} 
+\#define UART\+\_\+\+RX\+\_\+\+BUFFER\+\_\+\+SIZE~1}
+
+Taille du buffer de réception UART \Hypertarget{main_8c_a05f5d709605c6317c97e4974bec3402a}\index{main.c@{main.c}!UART\_TX\_BUFFER\_SIZE@{UART\_TX\_BUFFER\_SIZE}}
+\index{UART\_TX\_BUFFER\_SIZE@{UART\_TX\_BUFFER\_SIZE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{UART\_TX\_BUFFER\_SIZE}{UART\_TX\_BUFFER\_SIZE}}
+{\footnotesize\ttfamily \label{main_8c_a05f5d709605c6317c97e4974bec3402a} 
+\#define UART\+\_\+\+TX\+\_\+\+BUFFER\+\_\+\+SIZE~64}
+
+Taille du buffer d\textquotesingle{}émission UART 
+
+\doxysubsection{Function Documentation}
+\Hypertarget{main_8c_a1730ffe1e560465665eb47d9264826f9}\index{main.c@{main.c}!Error\_Handler@{Error\_Handler}}
+\index{Error\_Handler@{Error\_Handler}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{Error\_Handler()}{Error\_Handler()}}
+{\footnotesize\ttfamily \label{main_8c_a1730ffe1e560465665eb47d9264826f9} 
+void Error\+\_\+\+Handler (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+This function is executed in case of error occurrence. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em None} & \\
+\hline
+\end{DoxyRetVals}
+\Hypertarget{main_8c_a8a3b0ad512a6e6c6157440b68d395eac}\index{main.c@{main.c}!HAL\_TIM\_PeriodElapsedCallback@{HAL\_TIM\_PeriodElapsedCallback}}
+\index{HAL\_TIM\_PeriodElapsedCallback@{HAL\_TIM\_PeriodElapsedCallback}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{HAL\_TIM\_PeriodElapsedCallback()}{HAL\_TIM\_PeriodElapsedCallback()}}
+{\footnotesize\ttfamily \label{main_8c_a8a3b0ad512a6e6c6157440b68d395eac} 
+void HAL\+\_\+\+TIM\+\_\+\+Period\+Elapsed\+Callback (\begin{DoxyParamCaption}\item[{TIM\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}}]{htim}{}\end{DoxyParamCaption})}
+
+
+
+Period elapsed callback in non blocking mode. 
+
+\begin{DoxyNote}{Note}
+This function is called when TIM6 interrupt took place, inside HAL\+\_\+\+TIM\+\_\+\+IRQHandler(). It makes a direct call to HAL\+\_\+\+Inc\+Tick() to increment a global variable "{}uw\+Tick"{} used as application time base. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em htim} & \+: TIM handle \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em None} & \\
+\hline
+\end{DoxyRetVals}
+\Hypertarget{main_8c_ae494a9643f29b87d6d81e5264e60e57b}\index{main.c@{main.c}!HAL\_UART\_RxCpltCallback@{HAL\_UART\_RxCpltCallback}}
+\index{HAL\_UART\_RxCpltCallback@{HAL\_UART\_RxCpltCallback}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{HAL\_UART\_RxCpltCallback()}{HAL\_UART\_RxCpltCallback()}}
+{\footnotesize\ttfamily \label{main_8c_ae494a9643f29b87d6d81e5264e60e57b} 
+void HAL\+\_\+\+UART\+\_\+\+Rx\+Cplt\+Callback (\begin{DoxyParamCaption}\item[{UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}}]{huart}{}\end{DoxyParamCaption})}
+
+
+
+Callback appelé à la fin de la réception UART. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em huart} & Handle de l\textquotesingle{}UART. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em None} & \\
+\hline
+\end{DoxyRetVals}
+\Hypertarget{main_8c_a840291bc02cba5474a4cb46a9b9566fe}\index{main.c@{main.c}!main@{main}}
+\index{main@{main}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily \label{main_8c_a840291bc02cba5474a4cb46a9b9566fe} 
+int main (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+The application entry point. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em int} & \\
+\hline
+\end{DoxyRetVals}
+Tableau des arguments extraits de la commande
+
+Nombre d\textquotesingle{}arguments
+
+Token pour l\textquotesingle{}analyse de la chaîne
+
+Flag indiquant qu\textquotesingle{}une nouvelle commande est prête
+
+Vérifie si un caractère a été reçu sur l\textquotesingle{}UART.
+
+Écho du caractère reçu sur l\textquotesingle{}UART.
+
+Traitement du caractère reçu.
+
+Cas du retour chariot ou du saut de ligne \+: traite la commande entrée.
+
+Cas de la suppression \+: efface le dernier caractère saisi.
+
+Cas par défaut \+: ajoute le caractère au buffer de commande.
+
+Relance la réception UART en interruption.
+
+Vérifie si une nouvelle commande est prête à être traitée.
+
+Traite les commandes reconnues \+: help, pinout, start, stop.\Hypertarget{main_8c_a70af21c671abfcc773614a9a4f63d920}\index{main.c@{main.c}!SystemClock\_Config@{SystemClock\_Config}}
+\index{SystemClock\_Config@{SystemClock\_Config}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{SystemClock\_Config()}{SystemClock\_Config()}}
+{\footnotesize\ttfamily \label{main_8c_a70af21c671abfcc773614a9a4f63d920} 
+void System\+Clock\+\_\+\+Config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+System Clock Configuration. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em None} & \\
+\hline
+\end{DoxyRetVals}
+Configure the main internal regulator output voltage
+
+Initializes the RCC Oscillators according to the specified parameters in the RCC\+\_\+\+Osc\+Init\+Type\+Def structure.
+
+Initializes the CPU, AHB and APB buses clocks
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{main_8c_aa743ceb2f8e8a475a9d8792108346fcc}\index{main.c@{main.c}!helpMsg@{helpMsg}}
+\index{helpMsg@{helpMsg}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{helpMsg}{helpMsg}}
+{\footnotesize\ttfamily \label{main_8c_aa743ceb2f8e8a475a9d8792108346fcc} 
+const uint8\+\_\+t help\+Msg\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}Available\ commands:\(\backslash\)r\(\backslash\)n"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}help\ \ \ \ :\ Display\ this\ help\ message\(\backslash\)r\(\backslash\)n"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}pinout\ \ :\ Display\ the\ list\ of\ used\ pins\(\backslash\)r\(\backslash\)n"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}start\ \ \ :\ Power\ ON\ the\ motor\ stage\(\backslash\)r\(\backslash\)n"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}stop\ \ \ \ :\ Power\ OFF\ the\ motor\ stage\(\backslash\)r\(\backslash\)n"{}}}
+
+\end{DoxyCode}
+
+
+Message d\textquotesingle{}aide listant les fonctions disponibles. 
+
+\Hypertarget{main_8c_ac88f7e9fb5c08068a71fdf0108918291}\index{main.c@{main.c}!pinout@{pinout}}
+\index{pinout@{pinout}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{pinout}{pinout}}
+{\footnotesize\ttfamily \label{main_8c_ac88f7e9fb5c08068a71fdf0108918291} 
+const uint8\+\_\+t pinout\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}Used\ pins:\(\backslash\)r\(\backslash\)n"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}PA5\ :\ LED\(\backslash\)r\(\backslash\)n"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}PA2\ :\ USART2\_TX\(\backslash\)r\(\backslash\)n"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}PA3\ :\ USART2\_RX\(\backslash\)r\(\backslash\)n"{}}}
+
+\end{DoxyCode}
+
+
+Liste des broches utilisées. 
+
+\Hypertarget{main_8c_a755cb53f91881bf4852a1765ffc09dd6}\index{main.c@{main.c}!started@{started}}
+\index{started@{started}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{started}{started}}
+{\footnotesize\ttfamily \label{main_8c_a755cb53f91881bf4852a1765ffc09dd6} 
+const uint8\+\_\+t started\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)r\(\backslash\)n*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)r\(\backslash\)n|\ Welcome\ on\ Nucleo-\/STM32G431\ |"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)r\(\backslash\)n*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*"{}}}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)r\(\backslash\)n"{}}}
+
+\end{DoxyCode}
+
+
+Message de bienvenue au démarrage du microprocesseur. 
+
